@@ -1,0 +1,67 @@
+{
+    "name": "fish_indent",
+    "displayName": "fish_indent",
+    "description": "Format Fish code with fish_indent",
+    "version": "0.1.0",
+    "homepage": "https://marketplace.visualstudio.com/items?itemName=lunaryorn.fish_indent",
+    "bugs": "https://github.com/lunaryorn/vscode-fish_indent/issues",
+    "author": {
+        "name": "Sebastian Wiesner",
+        "email": "swiesner@lunaryorn.com",
+        "url": "http://www.lunaryorn.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lunaryorn/vscode-fish_indent.git"
+    },
+    "license": "GPL-3.0",
+    "publisher": "lunaryorn",
+    "engines": {
+        "vscode": "^1.12.0"
+    },
+    "categories": [
+        "Languages",
+        "Formatters"
+    ],
+    "keywords": [
+        "fish",
+        "fish_indent"
+    ],
+    "badges": [
+        {
+            "url": "https://travis-ci.org/lunaryorn/vscode-fish_indent.svg?branch=master",
+            "href": "https://travis-ci.org/lunaryorn/vscode-fish_indent",
+            "description": "Build Status"
+        }
+    ],
+    "activationEvents": [
+        "onLanguage:fish"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "languages": [
+            {
+                "id": "fish",
+                "aliases": [
+                    "fish"
+                ],
+                "extensions": [
+                    ".fish"
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/node": "^6.0.40",
+        "tslint": "^5.2.0",
+        "tslint-language-service": "^0.9.6",
+        "typescript": "^2.0.3",
+        "vscode": "^1.0.0"
+    }
+}

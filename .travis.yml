@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "node"
+script:
+  # Compile code
+  - yarn run vscode:prepublish
+cache:
+  yarn: true
+# Don't send mails, I'm using ccmenu
+notifications:
+  email: false

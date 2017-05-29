@@ -1,0 +1,13 @@
+{
+    "files.exclude": {
+        "out": true
+    },
+    "search.exclude": {
+        "out": true
+    },
+    "licenser.license": "GPLv3",
+    "licenser.author": "Sebastian Wiesner <swiesner@lunaryorn.com>",
+    "licenser.projectName": "vscode-hlint",
+    "typescript.implementationsCodeLens.enabled": true,
+    "typescript.referencesCodeLens.enabled": true
+}
