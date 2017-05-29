@@ -40,20 +40,10 @@
     "activationEvents": [
         "onLanguage:fish"
     ],
+    "extensionDependencies": [
+        "TeddyDD.fish"
+    ],
     "main": "./out/src/extension",
-    "contributes": {
-        "languages": [
-            {
-                "id": "fish",
-                "aliases": [
-                    "fish"
-                ],
-                "extensions": [
-                    ".fish"
-                ]
-            }
-        ]
-    },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -watch -p ./",
