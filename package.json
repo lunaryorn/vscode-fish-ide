@@ -35,7 +35,7 @@
             "url": "https://travis-ci.org/lunaryorn/vscode-fish-ide.svg?branch=master",
             "href": "https://travis-ci.org/lunaryorn/vscode-fish-ide",
             "description": "Build Status"
-        }s
+        }
     ],
     "activationEvents": [
         "onLanguage:fish"
