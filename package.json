@@ -1,10 +1,10 @@
 {
-    "name": "fish_indent",
-    "displayName": "fish_indent",
-    "description": "Format Fish code with fish_indent",
+    "name": "fish-ide",
+    "displayName": "fish-ide",
+    "description": "IDE for fish scripts",
     "version": "0.1.0",
-    "homepage": "https://marketplace.visualstudio.com/items?itemName=lunaryorn.fish_indent",
-    "bugs": "https://github.com/lunaryorn/vscode-fish_indent/issues",
+    "homepage": "https://marketplace.visualstudio.com/items?itemName=lunaryorn.fish-ide",
+    "bugs": "https://github.com/lunaryorn/vscode-fish-ide/issues",
     "author": {
         "name": "Sebastian Wiesner",
         "email": "swiesner@lunaryorn.com",
@@ -12,7 +12,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/lunaryorn/vscode-fish_indent.git"
+        "url": "https://github.com/lunaryorn/vscode-fish-ide.git"
     },
     "license": "GPL-3.0",
     "publisher": "lunaryorn",
@@ -21,18 +21,21 @@
     },
     "categories": [
         "Languages",
+        "Linters",
         "Formatters"
     ],
     "keywords": [
         "fish",
-        "fish_indent"
+        "shell",
+        "fish_indent",
+        "IDE"
     ],
     "badges": [
         {
-            "url": "https://travis-ci.org/lunaryorn/vscode-fish_indent.svg?branch=master",
-            "href": "https://travis-ci.org/lunaryorn/vscode-fish_indent",
+            "url": "https://travis-ci.org/lunaryorn/vscode-fish-ide.svg?branch=master",
+            "href": "https://travis-ci.org/lunaryorn/vscode-fish-ide",
             "description": "Build Status"
-        }
+        }s
     ],
     "activationEvents": [
         "onLanguage:fish"

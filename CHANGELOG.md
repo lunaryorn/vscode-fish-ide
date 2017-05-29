@@ -1,6 +1,5 @@
 # Change Log
-All notable changes to the "fish_indent" extension will be documented in this
-file.
+All notable changes to the "fish-ide" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how
 to structure this file.  This project does **not** adhere to [Semantic
