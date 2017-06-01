@@ -51,7 +51,7 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/node": "^6.0.40",
+        "@types/node": "^7.0.27",
         "tslint": "^5.2.0",
         "tslint-language-service": "^0.9.6",
         "typescript": "^2.0.3",
