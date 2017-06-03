@@ -56,5 +56,8 @@
         "tslint-language-service": "^0.9.6",
         "typescript": "^2.0.3",
         "vscode": "^1.0.0"
+    },
+    "dependencies": {
+        "rxjs": "^5.4.0"
     }
 }

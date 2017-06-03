@@ -16,6 +16,8 @@
 // along with vscode-hlint.  If not, see <http://www.gnu.org/licenses/>.
 
 import { execFile } from "child_process";
+import { Observable, Observer } from "rxjs";
+
 import * as vscode from "vscode";
 import {
     CancellationToken,
@@ -27,27 +29,73 @@ import {
 } from "vscode";
 
 /**
- * Run fish_indent in the current workspace.
+ * A process error.
  *
- * @param input The input for fish_indent
- * @return The output of fish_indent
+ * A process error occurs when the process exited with a non-zero exit code.
  */
-const indentFish = (input: string): Promise<string> => new Promise<string>(
-    (resolve, reject) => {
-        const cwd = vscode.workspace.rootPath || process.cwd();
-        const fishIndent = execFile("fish_indent", { cwd },
-            (error, stdout, stderr) => {
-                if (error) {
-                    // tslint:disable-next-line:max-line-length
-                    reject(new Error(
-                        `Failed to run fish_indent: ${error.message}, ${stderr}`));
-                } else {
-                    resolve(stdout);
-                }
-            });
-        fishIndent.stdin.end(input);
-    },
-);
+interface IProcessError extends Error {
+    /**
+     * The process ID.
+     */
+    readonly pid: number;
+    /**
+     * The exit code of the process.
+     */
+    readonly status: number;
+}
+
+/**
+ * Whether an error is a process error.
+ */
+const isProcessError = (error: Error): error is IProcessError =>
+    (error as IProcessError).pid !== undefined &&
+    (error as IProcessError).pid > 0;
+
+/**
+ * The result of a process.
+ */
+interface IProcessResult {
+    /**
+     * The integral exit code.
+     */
+    readonly exitCode: number;
+    /**
+     * The standard output.
+     */
+    readonly stdout: string;
+    /**
+     * The standard error.
+     */
+    readonly stderr: string;
+}
+
+/**
+ * Run a command in the current workspace.
+ *
+ * @param command The command array
+ * @param stdin An optional string to feed to standard input
+ * @return The result of the process as observable
+ */
+const runInWorkspace =
+    (command: string[], stdin?: string): Observable<IProcessResult> =>
+        Observable.create((observer: Observer<IProcessResult>): void => {
+            const cwd = vscode.workspace.rootPath || process.cwd();
+            const child = execFile(command[0], command.slice(1), { cwd },
+                (error, stdout, stderr) => {
+                    if (error && !isProcessError(error)) {
+                        // Check whether the error object has a "pid" property
+                        // which implies that exe
+                        observer.error(error);
+                    } else {
+                        const exitCode = error ? error.status : 0;
+                        observer.next({ stdout, stderr, exitCode });
+                        observer.complete();
+                    }
+                });
+            if (stdin) {
+                child.stdin.end(stdin);
+            }
+        });
 
 /**
  * Provide edits to format a fish document.
@@ -58,22 +106,26 @@ const indentFish = (input: string): Promise<string> => new Promise<string>(
  * @return A sequence of edits to format the current document
  */
 const provideDocumentFormattingEdits =
-    async (
+    (
         document: TextDocument,
         _options: FormattingOptions,
         token: CancellationToken,
-    ) => {
-        try {
-            const formatted = await indentFish(document.getText());
-            const rangeMax = document.validateRange(new Range(
-                0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
-            const formattingEdit = TextEdit.replace(rangeMax, formatted);
-            return token.isCancellationRequested ? [] : [formattingEdit];
-        } catch (error) {
-            vscode.window.showErrorMessage(
-                `Failed to format document: ${error}`);
-        }
-    };
+    ): Promise<TextEdit[]> =>
+        runInWorkspace(["fish_indent"], document.getText())
+            .catch((error) => {
+                vscode.window.showErrorMessage(
+                    `Failed to run fish_indent: ${error}`);
+                return Observable.empty<IProcessResult>();
+            })
+            .filter((result) => result.exitCode === 0 &&
+                (!token.isCancellationRequested))
+            .map((result) => {
+                const range = document.validateRange(new Range(
+                    0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
+                return [TextEdit.replace(range, result.stdout)];
+            })
+            .defaultIfEmpty([])
+            .toPromise();
 
 /**
  * Activate this extension.
