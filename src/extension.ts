@@ -86,6 +86,5 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(
         vscode.languages.registerDocumentFormattingEditProvider(
             "fish", { provideDocumentFormattingEdits }));
-    vscode.window.showInputBox("Hello fish!");
     return;
 }
