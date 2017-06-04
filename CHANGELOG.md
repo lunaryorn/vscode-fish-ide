@@ -7,3 +7,7 @@ Versioning](http://semver.org/)!
 
 ## [Unreleased]
 - Initial release
+
+### Added
+- Format documents and ranges within documents
+

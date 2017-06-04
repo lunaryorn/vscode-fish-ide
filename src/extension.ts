@@ -20,9 +20,9 @@ import { Observable, Observer } from "rxjs";
 
 import * as vscode from "vscode";
 import {
-    CancellationToken,
+    DocumentFormattingEditProvider,
+    DocumentRangeFormattingEditProvider,
     ExtensionContext,
-    FormattingOptions,
     Range,
     TextDocument,
     TextEdit,
@@ -98,34 +98,49 @@ const runInWorkspace =
         });
 
 /**
- * Provide edits to format a fish document.
+ * Get text edits to format a range in a document.
  *
- * @param document The document to format
- * @param _options Formatting options, currently unused
- * @param token A token to cancel the operation
- * @return A sequence of edits to format the current document
+ * @param document The document whose text to format
+ * @param range The range within the document to format
+ * @return An observable with the list of edits
  */
-const provideDocumentFormattingEdits =
-    (
-        document: TextDocument,
-        _options: FormattingOptions,
-        token: CancellationToken,
-    ): Promise<TextEdit[]> =>
-        runInWorkspace(["fish_indent"], document.getText())
-            .catch((error) => {
+const getFormatRangeEdits =
+    (document: TextDocument, range?: Range): Observable<TextEdit[]> => {
+        const actualRange = document.validateRange(
+            range || new Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
+        return runInWorkspace(["fish_indent"], document.getText(actualRange))
+            .catch((error): Observable<IProcessResult> => {
                 vscode.window.showErrorMessage(
                     `Failed to run fish_indent: ${error}`);
-                return Observable.empty<IProcessResult>();
+                // Re-throw the error to make the promise fail
+                throw error;
             })
-            .filter((result) => result.exitCode === 0 &&
-                (!token.isCancellationRequested))
-            .map((result) => {
-                const range = document.validateRange(new Range(
-                    0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
-                return [TextEdit.replace(range, result.stdout)];
-            })
+            .filter((result) => result.exitCode === 0)
+            .map((result) => [TextEdit.replace(actualRange, result.stdout)]);
+    };
+
+/**
+ * A type for all formatting providers.
+ */
+type FormattingProviders =
+    DocumentFormattingEditProvider &
+    DocumentRangeFormattingEditProvider;
+
+/**
+ * Formatting providers for fish documents.
+ */
+const formattingProviders: FormattingProviders = {
+    provideDocumentFormattingEdits: (document, _, token) =>
+        getFormatRangeEdits(document)
+            .filter(() => !token.isCancellationRequested)
             .defaultIfEmpty([])
-            .toPromise();
+            .toPromise(),
+    provideDocumentRangeFormattingEdits: (document, range, _, token) =>
+        getFormatRangeEdits(document, range)
+            .filter(() => !token.isCancellationRequested)
+            .defaultIfEmpty([])
+            .toPromise(),
+};
 
 /**
  * Activate this extension.
@@ -137,6 +152,9 @@ const provideDocumentFormattingEdits =
 export function activate(context: ExtensionContext) {
     context.subscriptions.push(
         vscode.languages.registerDocumentFormattingEditProvider(
-            "fish", { provideDocumentFormattingEdits }));
+            "fish", formattingProviders));
+    context.subscriptions.push(
+        vscode.languages.registerDocumentRangeFormattingEditProvider(
+            "fish", formattingProviders));
     return;
 }
