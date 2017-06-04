@@ -10,10 +10,6 @@ IDE features for [Fish][] scripts in [Visual Studio Code][code]:
 [fish]: http://fishshell.com
 [code]: https://code.visualstudio.com
 
-## Features
-
-
-
 ## Prerequisites
 
 Install [fish][] and make sure that `fish` and `fish_indent` are in `$PATH`.
