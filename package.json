@@ -21,7 +21,7 @@
         "vscode": "^1.12.0"
     },
     "galleryBanner": {
-        "color": "black",
+        "color": "#000000",
         "theme": "dark"
     },
     "categories": [
