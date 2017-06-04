@@ -2,15 +2,17 @@
 
 [![Build Status](https://travis-ci.org/lunaryorn/vscode-fish-ide.svg?branch=master)](https://travis-ci.org/lunaryorn/vscode-fish-ide)
 
-[fish][] IDE for [Visual Studio Code][code].
+IDE features for [Fish][] scripts in [Visual Studio Code][code]:
+
+* Format fish code with `fish_indent`
+* SOON: Check fish code for syntax errors
 
 [fish]: http://fishshell.com
 [code]: https://code.visualstudio.com
 
 ## Features
 
-* Format fish code with `fish_indent`
-* SOON: Check fish code for syntax errors
+
 
 ## Prerequisites
 

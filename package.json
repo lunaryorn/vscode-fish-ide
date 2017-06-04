@@ -1,10 +1,11 @@
 {
     "name": "fish-ide",
     "displayName": "fish-ide",
-    "description": "IDE for fish scripts",
+    "description": "IDE features for fish shell scripts",
     "version": "0.1.0",
     "homepage": "https://marketplace.visualstudio.com/items?itemName=lunaryorn.fish-ide",
     "bugs": "https://github.com/lunaryorn/vscode-fish-ide/issues",
+    "icon": "fish-shell.png",
     "author": {
         "name": "Sebastian Wiesner",
         "email": "swiesner@lunaryorn.com",
@@ -18,6 +19,10 @@
     "publisher": "lunaryorn",
     "engines": {
         "vscode": "^1.12.0"
+    },
+    "galleryBanner": {
+        "color": "black",
+        "theme": "dark"
     },
     "categories": [
         "Languages",
