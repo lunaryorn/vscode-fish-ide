@@ -6,6 +6,11 @@ to structure this file.  This project does **not** adhere to [Semantic
 Versioning](http://semver.org/)!
 
 ## [Unreleased]
+
+## 0.1.1 – 2017-06-04
+### Changed
+- Polish marketplace appearance
+
 ## 0.1.0 – 2017-06-04
 - Initial release
 
