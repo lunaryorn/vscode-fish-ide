@@ -143,18 +143,37 @@ const formattingProviders: FormattingProviders = {
 };
 
 /**
+ * Get the version of fish.
+ *
+ * @return An observable with the fish version string as single element
+ * @throws An error if fish doesn't exist or if the version wasn't found
+ */
+const getFishVersion = (): Observable<string> =>
+    runInWorkspace(["fish", "--version"])
+        .map((result) => {
+            const matches = result.stdout.match(/^fish, version (.+)$/m);
+            if (matches && matches.length === 2) {
+                return matches[1];
+            } else {
+                throw new Error(
+                    `Failed to extract fish version from: ${result.stdout}`);
+            }
+        });
+
+/**
  * Activate this extension.
  *
  * Installs a formatter for fish files using fish_indent.
  *
  * @param _context The context for this extension
  */
-export function activate(context: ExtensionContext) {
-    context.subscriptions.push(
-        vscode.languages.registerDocumentFormattingEditProvider(
-            "fish", formattingProviders));
-    context.subscriptions.push(
-        vscode.languages.registerDocumentRangeFormattingEditProvider(
-            "fish", formattingProviders));
-    return;
-}
+export const activate = (context: ExtensionContext): Promise<any> =>
+    getFishVersion().do((version) => {
+        console.log("Found fish version", version);
+        context.subscriptions.push(
+            vscode.languages.registerDocumentFormattingEditProvider(
+                "fish", formattingProviders));
+        context.subscriptions.push(
+            vscode.languages.registerDocumentRangeFormattingEditProvider(
+                "fish", formattingProviders));
+    }).toPromise();
