@@ -10,7 +10,7 @@
 ## Features
 
 * Format fish code with `fish_indent`
-* Check fish code for syntax errors
+* SOON: Check fish code for syntax errors
 
 ## Prerequisites
 
@@ -18,7 +18,9 @@ Install [fish][] and make sure that `fish` and `fish_indent` are in `$PATH`.
 
 ## Usage
 
-TODO
+Format a fish document or a selection in a fish document with the [built-in formatting feature][1] of Visual Studio Code.
+
+[1]: https://code.visualstudio.com/docs/editor/codebasics#_formatting
 
 ## License
 
