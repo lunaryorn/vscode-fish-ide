@@ -165,7 +165,10 @@ const getFishVersion = (): Observable<string> =>
  *
  * Installs a formatter for fish files using fish_indent.
  *
- * @param _context The context for this extension
+ * The initialization fails if Fish is not installed.
+ *
+ * @param context The context for this extension
+ * @return A promise for the initialization
  */
 export const activate = (context: ExtensionContext): Promise<any> =>
     getFishVersion().do((version) => {
