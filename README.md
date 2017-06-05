@@ -12,7 +12,7 @@ IDE features for [Fish][] scripts in [Visual Studio Code][code]:
 
 ## Prerequisites
 
-Install [fish][] and make sure that `fish` and `fish_indent` are in `$PATH`.
+Install [fish][] and make sure that `fish` and `fish_indent` are in `$PATH`.  Otherwise this extension will fail to activate.
 
 ## Usage
 
