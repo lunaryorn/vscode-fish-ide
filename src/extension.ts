@@ -20,6 +20,8 @@ import { Observable, Observer } from "rxjs";
 
 import * as vscode from "vscode";
 import {
+    Diagnostic,
+    Disposable,
     DocumentFormattingEditProvider,
     DocumentRangeFormattingEditProvider,
     ExtensionContext,
@@ -27,6 +29,18 @@ import {
     TextDocument,
     TextEdit,
 } from "vscode";
+
+/**
+ * Whether a given document is saved to disk and in Fish language.
+ *
+ * @param document The document to check
+ * @return Whether the document is a Fish document saved to disk
+ */
+const isSavedFishDocument = (document: TextDocument): boolean =>
+    !document.isDirty && 0 < vscode.languages.match({
+        language: "fish",
+        scheme: "file",
+    }, document);
 
 /**
  * A process error.
@@ -82,6 +96,7 @@ const runInWorkspace =
             const cwd = vscode.workspace.rootPath || process.cwd();
             const child = execFile(command[0], command.slice(1), { cwd },
                 (error, stdout, stderr) => {
+                    console.error("Comment error", command, error);
                     if (error && !isProcessError(error)) {
                         // Check whether the error object has a "pid" property
                         // which implies that exe
@@ -96,6 +111,71 @@ const runInWorkspace =
                 child.stdin.end(stdin);
             }
         });
+
+/**
+ * An event that can be subscribed to.
+ */
+type Event<T> = (handler: (document: T) => void) => Disposable;
+
+/**
+ * Observe a vscode event.
+ *
+ * @param event The event to observe
+ * @return An observable which pushes every event
+ */
+const observeEvent = <T>(event: Event<T>): Observable<T> =>
+    Observable.fromEventPattern(
+        (handler) => event((d) => handler(d)),
+        (_: any, subscription: Disposable) => subscription.dispose(),
+        (d) => d as T,
+    );
+
+/**
+ * Lint a document with fish -n.
+ *
+ * @param document The document to check
+ * @return The resulting diagnostics
+ */
+const lintDocument = (document: TextDocument): Observable<Diagnostic[]> =>
+    runInWorkspace(["fish", "-n", document.fileName])
+        .map((_result) => {
+            return [];
+        });
+
+/**
+ * Start linting Fish documents.
+ *
+ * @param context The extension context
+ */
+const startLinting = (context: ExtensionContext): void => {
+    const diagnostics = vscode.languages.createDiagnosticCollection("fish");
+    context.subscriptions.push(diagnostics);
+
+    const linting = Observable.from(vscode.workspace.textDocuments)
+        .merge(observeEvent(vscode.workspace.onDidOpenTextDocument))
+        .merge(observeEvent(vscode.workspace.onDidSaveTextDocument))
+        .filter((document) => isSavedFishDocument(document))
+        .groupBy((document) => document.uri)
+        // Do not lint excessively
+        .map((events) => events.debounceTime(200))
+        .mergeAll()
+        .map((document) =>
+            lintDocument(document)
+                .catch((error) => {
+                    vscode.window.showErrorMessage(error.toString());
+                    diagnostics.delete(document.uri);
+                    return Observable.empty<Diagnostic[]>();
+                })
+                .map((results) => ({ document, results })))
+        .mergeAll()
+        .subscribe(({ document, results }) =>
+            diagnostics.set(document.uri, results));
+    context.subscriptions.push({ dispose: linting.unsubscribe });
+
+    context.subscriptions.push(
+        vscode.workspace.onDidCloseTextDocument((document) =>
+            diagnostics.delete(document.uri)));
+};
 
 /**
  * Get text edits to format a range in a document.
@@ -173,6 +253,9 @@ const getFishVersion = (): Observable<string> =>
 export const activate = (context: ExtensionContext): Promise<any> =>
     getFishVersion().do((version) => {
         console.log("Found fish version", version);
+
+        startLinting(context);
+
         context.subscriptions.push(
             vscode.languages.registerDocumentFormattingEditProvider(
                 "fish", formattingProviders));
