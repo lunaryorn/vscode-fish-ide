@@ -150,9 +150,24 @@ const observeEvent = <T>(event: Event<T>): Observable<T> =>
  * @return The resulting diagnostics
  */
 const lintDocument = (document: TextDocument): Observable<Diagnostic[]> =>
-    runInWorkspace(["fish asdasd", "-n", document.fileName])
-        .map((_result) => {
-            return [];
+    runInWorkspace(["fish", "-n", document.fileName])
+        .map((result) => {
+            const diagnostics: Diagnostic[] = [];
+            const errorPattern = /^(.+) \(line (\d+)\): (.+)$/mg;
+            let match = errorPattern.exec(result.stderr);
+            while (match !== null) {
+                // const fileName = match[1];
+                const lineNumber = Number.parseInt(match[2]);
+                const message = match[3];
+                // TODO: Filter by filename
+                const range = document.validateRange(new Range(
+                    lineNumber - 1, 0, lineNumber - 1, Number.MAX_VALUE));
+                const diagnostic = new Diagnostic(range, message);
+                diagnostic.source = "fish";
+                diagnostics.push(diagnostic);
+                match = errorPattern.exec(result.stdout);
+            }
+            return diagnostics;
         });
 
 /**

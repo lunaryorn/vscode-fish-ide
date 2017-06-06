@@ -5,7 +5,7 @@
 IDE features for [Fish][] scripts in [Visual Studio Code][code]:
 
 * Format fish code with `fish_indent`
-* SOON: Check fish code for syntax errors
+* Check fish code for syntax errors
 
 [fish]: http://fishshell.com
 [code]: https://code.visualstudio.com

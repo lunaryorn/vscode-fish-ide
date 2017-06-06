@@ -6,6 +6,8 @@ to structure this file.  This project does **not** adhere to [Semantic
 Versioning](http://semver.org/)!
 
 ## [Unreleased]
+### Added
+- Check Fish files for syntax errors when saved [GH-1]
 
 ## 0.1.1 – 2017-06-04
 ### Changed
