@@ -43,27 +43,40 @@ const isSavedFishDocument = (document: TextDocument): boolean =>
     }, document);
 
 /**
+ * A system error, i.e. an error that results from a syscall.
+ */
+interface ISystemError extends Error {
+    readonly errno: string;
+}
+
+/**
+ * Whether an error is a system error.
+ *
+ * @param error The error to check
+ */
+const isSystemError = (error: Error): error is ISystemError =>
+    (error as ISystemError).errno !== undefined &&
+    (typeof (error as ISystemError).errno) === "string";
+
+/**
  * A process error.
  *
  * A process error occurs when the process exited with a non-zero exit code.
  */
 interface IProcessError extends Error {
     /**
-     * The process ID.
-     */
-    readonly pid: number;
-    /**
      * The exit code of the process.
      */
-    readonly status: number;
+    readonly code: number;
 }
 
 /**
  * Whether an error is a process error.
  */
 const isProcessError = (error: Error): error is IProcessError =>
-    (error as IProcessError).pid !== undefined &&
-    (error as IProcessError).pid > 0;
+    !isSystemError(error) &&
+    (error as IProcessError).code !== undefined &&
+    (error as IProcessError).code > 0;
 
 /**
  * The result of a process.
@@ -96,13 +109,13 @@ const runInWorkspace =
             const cwd = vscode.workspace.rootPath || process.cwd();
             const child = execFile(command[0], command.slice(1), { cwd },
                 (error, stdout, stderr) => {
-                    console.error("Comment error", command, error);
                     if (error && !isProcessError(error)) {
-                        // Check whether the error object has a "pid" property
-                        // which implies that exe
+                        // Throw system errors, but do not fail if the command
+                        // fails with a non-zero exit code.
+                        console.error("Command error", command, error);
                         observer.error(error);
                     } else {
-                        const exitCode = error ? error.status : 0;
+                        const exitCode = error ? error.code : 0;
                         observer.next({ stdout, stderr, exitCode });
                         observer.complete();
                     }
@@ -137,7 +150,7 @@ const observeEvent = <T>(event: Event<T>): Observable<T> =>
  * @return The resulting diagnostics
  */
 const lintDocument = (document: TextDocument): Observable<Diagnostic[]> =>
-    runInWorkspace(["fish", "-n", document.fileName])
+    runInWorkspace(["fish asdasd", "-n", document.fileName])
         .map((_result) => {
             return [];
         });
@@ -243,9 +256,10 @@ const getFishVersion = (): Observable<string> =>
 /**
  * Activate this extension.
  *
- * Installs a formatter for fish files using fish_indent.
+ * Install a formatter for fish files using fish_indent, and start linting fish
+ * files for syntax errors.
  *
- * The initialization fails if Fish is not installed.
+ * Initialization fails if Fish is not installed.
  *
  * @param context The context for this extension
  * @return A promise for the initialization
