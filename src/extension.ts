@@ -183,10 +183,6 @@ const startLinting = (context: ExtensionContext): void => {
         .merge(observeEvent(vscode.workspace.onDidOpenTextDocument))
         .merge(observeEvent(vscode.workspace.onDidSaveTextDocument))
         .filter((document) => isSavedFishDocument(document))
-        .groupBy((document) => document.uri)
-        // Do not lint excessively
-        .map((events) => events.debounceTime(200))
-        .mergeAll()
         .map((document) =>
             lintDocument(document)
                 .catch((error) => {
