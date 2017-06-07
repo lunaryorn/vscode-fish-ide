@@ -143,6 +143,44 @@ const observeEvent = <T>(event: Event<T>): Observable<T> =>
         (d) => d as T,
     );
 
+const observeMatches =
+    (pattern: RegExp, text: string): Observable<RegExpExecArray> =>
+        Observable.create((observer: Observer<RegExpExecArray>): void => {
+            try {
+                let match = pattern.exec(text);
+                while (match !== null) {
+                    observer.next(match);
+                    match = pattern.exec(text);
+                }
+                observer.complete();
+            } catch (error) {
+                observer.error(error);
+            }
+        });
+
+/**
+ * Parse fish errors from Fish output for a given document.
+ *
+ * @param document The document to whose contents errors refer
+ * @param output The error output from Fish.
+ * @return An observable of all diagnostics
+ */
+const parseFishErrors =
+    (document: TextDocument, output: string): Observable<Diagnostic[]> =>
+        observeMatches(/^(.+) \(line (\d+)\): (.+)$/mg, output)
+            .map((match) => ({
+                fileName: match[1],
+                lineNumber: Number.parseInt(match[2]),
+                message: match[3],
+            }))
+            .map(({ message, lineNumber }) => {
+                const range = document.validateRange(new Range(
+                    lineNumber - 1, 0, lineNumber - 1, Number.MAX_VALUE));
+                const diagnostic = new Diagnostic(range, message);
+                diagnostic.source = "fish";
+                return diagnostic;
+            }).toArray();
+
 /**
  * Lint a document with fish -n.
  *
@@ -151,24 +189,7 @@ const observeEvent = <T>(event: Event<T>): Observable<T> =>
  */
 const lintDocument = (document: TextDocument): Observable<Diagnostic[]> =>
     runInWorkspace(["fish", "-n", document.fileName])
-        .map((result) => {
-            const diagnostics: Diagnostic[] = [];
-            const errorPattern = /^(.+) \(line (\d+)\): (.+)$/mg;
-            let match = errorPattern.exec(result.stderr);
-            while (match !== null) {
-                // const fileName = match[1];
-                const lineNumber = Number.parseInt(match[2]);
-                const message = match[3];
-                // TODO: Filter by filename
-                const range = document.validateRange(new Range(
-                    lineNumber - 1, 0, lineNumber - 1, Number.MAX_VALUE));
-                const diagnostic = new Diagnostic(range, message);
-                diagnostic.source = "fish";
-                diagnostics.push(diagnostic);
-                match = errorPattern.exec(result.stdout);
-            }
-            return diagnostics;
-        });
+        .concatMap((result) => parseFishErrors(document, result.stderr));
 
 /**
  * Start linting Fish documents.
