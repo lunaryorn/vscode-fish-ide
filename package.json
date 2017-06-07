@@ -2,7 +2,7 @@
     "name": "fish-ide",
     "displayName": "fish-ide",
     "description": "IDE features for fish shell scripts",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "homepage": "https://marketplace.visualstudio.com/items?itemName=lunaryorn.fish-ide",
     "bugs": "https://github.com/lunaryorn/vscode-fish-ide/issues",
     "icon": "fish-shell.png",
