@@ -215,11 +215,14 @@ const startLinting = (context: ExtensionContext): void => {
         .mergeAll()
         .subscribe(({ document, results }) =>
             diagnostics.set(document.uri, results));
-    context.subscriptions.push({ dispose: linting.unsubscribe });
 
-    context.subscriptions.push(
-        vscode.workspace.onDidCloseTextDocument((document) =>
-            diagnostics.delete(document.uri)));
+    const closed = observeEvent(vscode.workspace.onDidCloseTextDocument)
+        .subscribe((document) => diagnostics.delete(document.uri));
+
+    // Register our subscriptions for cleanup by VSCode when the extension gets
+    // deactivated
+    [linting, closed].forEach((subscription) =>
+        context.subscriptions.push({ dispose: subscription.unsubscribe }));
 };
 
 /**
