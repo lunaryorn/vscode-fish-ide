@@ -143,6 +143,13 @@ const observeEvent = <T>(event: Event<T>): Observable<T> =>
         (d) => d as T,
     );
 
+/**
+ * Exec pattern against the given text and return an observable of all matches.
+ *
+ * @param pattern The pattern to match against
+ * @param text The text to match the pattern against
+ * @return All matches of pattern in text.
+ */
 const observeMatches =
     (pattern: RegExp, text: string): Observable<RegExpExecArray> =>
         Observable.create((observer: Observer<RegExpExecArray>): void => {
