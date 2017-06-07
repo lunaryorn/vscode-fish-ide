@@ -16,6 +16,7 @@
 // along with vscode-hlint.  If not, see <http://www.gnu.org/licenses/>.
 
 import { execFile } from "child_process";
+import { homedir } from "os";
 import { Observable, Observer } from "rxjs";
 
 import * as vscode from "vscode";
@@ -28,7 +29,16 @@ import {
     Range,
     TextDocument,
     TextEdit,
+    Uri,
 } from "vscode";
+
+/**
+ * Expand a leading tilde to $HOME in the given path.
+ *
+ * @param path The path to expand
+ */
+const expandUser = (path: string): Uri =>
+    Uri.file(path.replace(/^~($|\/|\\)/, `${homedir()}$1`));
 
 /**
  * Whether a given document is saved to disk and in Fish language.
@@ -180,6 +190,8 @@ const parseFishErrors =
                 lineNumber: Number.parseInt(match[2]),
                 message: match[3],
             }))
+            .filter(({ fileName }) =>
+                expandUser(fileName).toString === document.uri.toString)
             .map(({ message, lineNumber }) => {
                 const range = document.validateRange(new Range(
                     lineNumber - 1, 0, lineNumber - 1, Number.MAX_VALUE));
