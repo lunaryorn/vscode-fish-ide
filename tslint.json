@@ -1,24 +1,25 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "tslint:recommended"
+        "tslint:recommended",
+        "tslint-immutable"
     ],
     "jsRules": {},
     "rules": {
+        // Immutability rules
+        "readonly-keyword": true,
+        "readonly-array": true,
+        "no-let": true,
+        // Functional style rules
+        "no-this": true,
+        "no-class": true,
+        "no-mixed-interface": true,
+        // Style rules
         "max-line-length": [
             true,
             80
         ],
-        "max-classes-per-file": [
-            true,
-            0
-        ],
-        "variable-name": [
-            true,
-            "ban-keywords",
-            "check-format",
-            "allow-leading-underscore"
-        ],
+        // Allow console, for debugging and logging purposes
         "no-console": [
             false
         ]

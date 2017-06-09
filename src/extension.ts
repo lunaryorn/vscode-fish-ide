@@ -113,27 +113,28 @@ interface IProcessResult {
  * @param stdin An optional string to feed to standard input
  * @return The result of the process as observable
  */
-const runInWorkspace =
-    (command: string[], stdin?: string): Observable<IProcessResult> =>
-        Observable.create((observer: Observer<IProcessResult>): void => {
-            const cwd = vscode.workspace.rootPath || process.cwd();
-            const child = execFile(command[0], command.slice(1), { cwd },
-                (error, stdout, stderr) => {
-                    if (error && !isProcessError(error)) {
-                        // Throw system errors, but do not fail if the command
-                        // fails with a non-zero exit code.
-                        console.error("Command error", command, error);
-                        observer.error(error);
-                    } else {
-                        const exitCode = error ? error.code : 0;
-                        observer.next({ stdout, stderr, exitCode });
-                        observer.complete();
-                    }
-                });
-            if (stdin) {
-                child.stdin.end(stdin);
-            }
-        });
+const runInWorkspace = (
+    command: ReadonlyArray<string>, stdin?: string,
+): Observable<IProcessResult> =>
+    Observable.create((observer: Observer<IProcessResult>): void => {
+        const cwd = vscode.workspace.rootPath || process.cwd();
+        const child = execFile(command[0], command.slice(1), { cwd },
+            (error, stdout, stderr) => {
+                if (error && !isProcessError(error)) {
+                    // Throw system errors, but do not fail if the command
+                    // fails with a non-zero exit code.
+                    console.error("Command error", command, error);
+                    observer.error(error);
+                } else {
+                    const exitCode = error ? error.code : 0;
+                    observer.next({ stdout, stderr, exitCode });
+                    observer.complete();
+                }
+            });
+        if (stdin) {
+            child.stdin.end(stdin);
+        }
+    });
 
 /**
  * An event that can be subscribed to.
@@ -164,6 +165,8 @@ const observeMatches =
     (pattern: RegExp, text: string): Observable<RegExpExecArray> =>
         Observable.create((observer: Observer<RegExpExecArray>): void => {
             try {
+                // We need to loop through the regexp here, so a let is required
+                // tslint:disable-next-line:no-let
                 let match = pattern.exec(text);
                 while (match !== null) {
                     observer.next(match);
@@ -182,23 +185,24 @@ const observeMatches =
  * @param output The error output from Fish.
  * @return An observable of all diagnostics
  */
-const parseFishErrors =
-    (document: TextDocument, output: string): Observable<Diagnostic[]> =>
-        observeMatches(/^(.+) \(line (\d+)\): (.+)$/mg, output)
-            .map((match) => ({
-                fileName: match[1],
-                lineNumber: Number.parseInt(match[2]),
-                message: match[3],
-            }))
-            .filter(({ fileName }) =>
-                expandUser(fileName).toString === document.uri.toString)
-            .map(({ message, lineNumber }) => {
-                const range = document.validateRange(new Range(
-                    lineNumber - 1, 0, lineNumber - 1, Number.MAX_VALUE));
-                const diagnostic = new Diagnostic(range, message);
-                diagnostic.source = "fish";
-                return diagnostic;
-            }).toArray();
+const parseFishErrors = (
+    document: TextDocument, output: string,
+): Observable<ReadonlyArray<Diagnostic>> =>
+    observeMatches(/^(.+) \(line (\d+)\): (.+)$/mg, output)
+        .map((match) => ({
+            fileName: match[1],
+            lineNumber: Number.parseInt(match[2]),
+            message: match[3],
+        }))
+        .filter(({ fileName }) =>
+            expandUser(fileName).toString === document.uri.toString)
+        .map(({ message, lineNumber }) => {
+            const range = document.validateRange(new Range(
+                lineNumber - 1, 0, lineNumber - 1, Number.MAX_VALUE));
+            const diagnostic = new Diagnostic(range, message);
+            diagnostic.source = "fish";
+            return diagnostic;
+        }).toArray();
 
 /**
  * Lint a document with fish -n.
@@ -206,9 +210,10 @@ const parseFishErrors =
  * @param document The document to check
  * @return The resulting diagnostics
  */
-const lintDocument = (document: TextDocument): Observable<Diagnostic[]> =>
-    runInWorkspace(["fish", "-n", document.fileName])
-        .concatMap((result) => parseFishErrors(document, result.stderr));
+const lintDocument =
+    (document: TextDocument): Observable<ReadonlyArray<Diagnostic>> =>
+        runInWorkspace(["fish", "-n", document.fileName])
+            .concatMap((result) => parseFishErrors(document, result.stderr));
 
 /**
  * Start linting Fish documents.
@@ -228,12 +233,13 @@ const startLinting = (context: ExtensionContext): void => {
                 .catch((error) => {
                     vscode.window.showErrorMessage(error.toString());
                     diagnostics.delete(document.uri);
-                    return Observable.empty<Diagnostic[]>();
+                    return Observable.empty<ReadonlyArray<Diagnostic>>();
                 })
                 .map((results) => ({ document, results })))
         .mergeAll()
         .subscribe(({ document, results }) =>
-            diagnostics.set(document.uri, results));
+            // tslint:disable-next-line:readonly-array
+            diagnostics.set(document.uri, results as Diagnostic[]));
 
     const closed = observeEvent(vscode.workspace.onDidCloseTextDocument)
         .subscribe((document) => diagnostics.delete(document.uri));
@@ -251,20 +257,21 @@ const startLinting = (context: ExtensionContext): void => {
  * @param range The range within the document to format
  * @return An observable with the list of edits
  */
-const getFormatRangeEdits =
-    (document: TextDocument, range?: Range): Observable<TextEdit[]> => {
-        const actualRange = document.validateRange(
-            range || new Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
-        return runInWorkspace(["fish_indent"], document.getText(actualRange))
-            .catch((error): Observable<IProcessResult> => {
-                vscode.window.showErrorMessage(
-                    `Failed to run fish_indent: ${error}`);
-                // Re-throw the error to make the promise fail
-                throw error;
-            })
-            .filter((result) => result.exitCode === 0)
-            .map((result) => [TextEdit.replace(actualRange, result.stdout)]);
-    };
+const getFormatRangeEdits = (
+    document: TextDocument, range?: Range,
+): Observable<ReadonlyArray<TextEdit>> => {
+    const actualRange = document.validateRange(
+        range || new Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
+    return runInWorkspace(["fish_indent"], document.getText(actualRange))
+        .catch((error): Observable<IProcessResult> => {
+            vscode.window.showErrorMessage(
+                `Failed to run fish_indent: ${error}`);
+            // Re-throw the error to make the promise fail
+            throw error;
+        })
+        .filter((result) => result.exitCode === 0)
+        .map((result) => [TextEdit.replace(actualRange, result.stdout)]);
+};
 
 /**
  * A type for all formatting providers.
@@ -281,12 +288,14 @@ const formattingProviders: FormattingProviders = {
         getFormatRangeEdits(document)
             .filter(() => !token.isCancellationRequested)
             .defaultIfEmpty([])
-            .toPromise(),
+            // tslint:disable-next-line:readonly-array
+            .toPromise<TextEdit[]>(),
     provideDocumentRangeFormattingEdits: (document, range, _, token) =>
         getFormatRangeEdits(document, range)
             .filter(() => !token.isCancellationRequested)
             .defaultIfEmpty([])
-            .toPromise(),
+            // tslint:disable-next-line:readonly-array
+            .toPromise<TextEdit[]>(),
 };
 
 /**
