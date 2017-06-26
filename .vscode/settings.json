@@ -5,7 +5,7 @@
     "search.exclude": {
         "out": true
     },
-    "licenser.license": "GPLv3",
+    "licenser.license": "MIT",
     "licenser.author": "Sebastian Wiesner <swiesner@lunaryorn.com>",
     "licenser.projectName": "vscode-hlint",
     "typescript.implementationsCodeLens.enabled": true,

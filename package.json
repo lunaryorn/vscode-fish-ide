@@ -15,7 +15,7 @@
         "type": "git",
         "url": "https://github.com/lunaryorn/vscode-fish-ide.git"
     },
-    "license": "GPL-3.0",
+    "license": "MIT",
     "publisher": "lunaryorn",
     "engines": {
         "vscode": "^1.12.0"

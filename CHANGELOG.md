@@ -6,6 +6,8 @@ to structure this file.  This project does **not** adhere to [Semantic
 Versioning](http://semver.org/)!
 
 ## [Unreleased]
+### Changed
+- Relicense under MIT (formerly GPL-3)
 
 ## 0.2.0 – 2017-06-07
 ### Added
