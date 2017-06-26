@@ -11,7 +11,8 @@ Versioning](http://semver.org/)!
 
 ## 0.2.0 – 2017-06-07
 ### Added
-- Check Fish files for syntax errors when saved [GH-1]
+- Check Fish files for syntax errors when saved, see
+  <https://github.com/lunaryorn/vscode-fish-ide/issues/1>
 
 ## 0.1.1 – 2017-06-04
 ### Changed
