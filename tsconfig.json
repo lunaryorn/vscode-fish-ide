@@ -4,10 +4,7 @@
         "target": "es6",
         "outDir": "out",
         "lib": [
-            "es6",
-            // We need the "dom" library because rxjs' typings depend on some
-            // DOM types, see https://github.com/ReactiveX/rxjs/issues/1986
-            "dom"
+            "es6"
         ],
         "sourceMap": true,
         "rootDir": ".",
