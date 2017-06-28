@@ -216,6 +216,9 @@ const startLinting = (context: ExtensionContext): void => {
 
     vscode.workspace.onDidOpenTextDocument(lint, null, context.subscriptions);
     vscode.workspace.onDidSaveTextDocument(lint, null, context.subscriptions);
+    vscode.workspace.textDocuments.forEach(lint);
+
+    // Remove diagnostics for closed files
     vscode.workspace.onDidCloseTextDocument(
         (d) => diagnostics.delete(d.uri), null, context.subscriptions);
 };
