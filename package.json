@@ -52,6 +52,8 @@
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -watch -p ./",
+        "format": "tsfmt --baseDir . --replace",
+        "format:verify": "tsfmt --baseDir . --verify",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "node ./node_modules/vscode/bin/test"
     },
@@ -61,6 +63,7 @@
         "tslint-immutable": "^4.0.1",
         "tslint-language-service": "^0.9.6",
         "typescript": "^2.4.1",
+        "typescript-formatter": "^5.2.0",
         "vscode": "^1.0.0"
     }
 }
