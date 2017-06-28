@@ -60,7 +60,7 @@
         "tslint": "^5.2.0",
         "tslint-immutable": "^4.0.1",
         "tslint-language-service": "^0.9.6",
-        "typescript": "^2.0.3",
+        "typescript": "^2.4.1",
         "vscode": "^1.0.0"
     }
 }
