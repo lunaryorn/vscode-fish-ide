@@ -30,6 +30,7 @@ import {
     TextDocument,
     TextEdit,
     Uri,
+    WorkspaceFolder,
 } from "vscode";
 
 /**
@@ -107,32 +108,39 @@ interface IProcessResult {
 }
 
 /**
- * Run a command in the current workspace.
+ * Run a command in a given workspace folder.
  *
+ * If the workspace folder is undefined run the command in the working directory
+ * if the vscode instance.
+ *
+ * @param folder The folder to run the command in
  * @param command The command array
  * @param stdin An optional string to feed to standard input
  * @return The result of the process as promise
  */
-const runInWorkspace =
-    (command: ReadonlyArray<string>, stdin?: string): Promise<IProcessResult> =>
-        new Promise((resolve, reject) => {
-            const cwd = vscode.workspace.rootPath || process.cwd();
-            const child = execFile(command[0], command.slice(1), { cwd },
-                (error, stdout, stderr) => {
-                    if (error && !isProcessError(error)) {
-                        // Throw system errors, but do not fail if the command
-                        // fails with a non-zero exit code.
-                        console.error("Command error", command, error);
-                        reject(error);
-                    } else {
-                        const exitCode = error ? error.code : 0;
-                        resolve({ stdout, stderr, exitCode });
-                    }
-                });
-            if (stdin) {
-                child.stdin.end(stdin);
-            }
-        });
+const runInWorkspace = (
+    folder: WorkspaceFolder | undefined,
+    command: ReadonlyArray<string>,
+    stdin?: string,
+): Promise<IProcessResult> =>
+    new Promise((resolve, reject) => {
+        const cwd = folder ? folder.uri.fsPath : process.cwd();
+        const child = execFile(command[0], command.slice(1), { cwd },
+            (error, stdout, stderr) => {
+                if (error && !isProcessError(error)) {
+                    // Throw system errors, but do not fail if the command
+                    // fails with a non-zero exit code.
+                    console.error("Command error", command, error);
+                    reject(error);
+                } else {
+                    const exitCode = error ? error.code : 0;
+                    resolve({ stdout, stderr, exitCode });
+                }
+            });
+        if (stdin) {
+            child.stdin.end(stdin);
+        }
+    });
 
 /**
  * Exec pattern against the given text and return an array of all matches.
@@ -188,7 +196,8 @@ const parseFishErrors =
  */
 const getDiagnostics =
     (document: TextDocument): Promise<ReadonlyArray<Diagnostic>> =>
-        runInWorkspace(["fish", "-n", document.fileName])
+        runInWorkspace(vscode.workspace.getWorkspaceFolder(document.uri),
+            ["fish", "-n", document.fileName])
             .then((result) => parseFishErrors(document, result.stderr));
 
 /**
@@ -237,6 +246,7 @@ const getFormatRangeEdits = async (
     const actualRange = document.validateRange(
         range || new Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE));
     const result = await runInWorkspace(
+        vscode.workspace.getWorkspaceFolder(document.uri),
         ["fish_indent"], document.getText(actualRange),
     ).catch((error) => {
         vscode.window.showErrorMessage(
@@ -279,7 +289,9 @@ const formattingProviders: FormattingProviders = {
  * the version wasn't found the promise is rejected.
  */
 const getFishVersion = (): Promise<string> =>
-    runInWorkspace(["fish", "--version"])
+    runInWorkspace(
+        undefined,
+        ["fish", "--version"])
         .then((result) => {
             const matches = result.stdout.match(/^fish, version (.+)$/m);
             if (matches && matches.length === 2) {

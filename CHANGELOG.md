@@ -6,6 +6,9 @@ to structure this file.  This project does **not** adhere to [Semantic
 Versioning](http://semver.org/)!
 
 ## [Unreleased]
+### Added
+- Support multi-root workspaces, see
+  <https://github.com/lunaryorn/vscode-fish-ide/issues/2>
 
 ## 0.2.1 – 2017-06-26
 ### Changed
