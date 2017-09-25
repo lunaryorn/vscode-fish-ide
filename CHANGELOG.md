@@ -12,6 +12,9 @@ Versioning](http://semver.org/)!
 - Support multi-root workspaces, see
   <https://github.com/lunaryorn/vscode-fish-ide/issues/2>
 
+### Changed
+- Require vscode 1.15 or newer
+
 ## 0.2.1 – 2017-06-26
 ### Changed
 - Relicense under MIT (formerly GPL-3)
