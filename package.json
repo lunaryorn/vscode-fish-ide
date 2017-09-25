@@ -18,7 +18,7 @@
     "license": "MIT",
     "publisher": "lunaryorn",
     "engines": {
-        "vscode": "^1.12.0"
+        "vscode": "^1.15.0"
     },
     "galleryBanner": {
         "color": "#000000",
@@ -63,7 +63,7 @@
         "tslint-immutable": "^4.0.1",
         "tslint-language-service": "^0.9.6",
         "typescript": "^2.4.1",
-        "typescript-formatter": "^5.2.0",
-        "vscode": "^1.0.0"
+        "typescript-formatter": "^6.0.0",
+        "vscode": "^1.1.5"
     }
 }
