@@ -6,7 +6,7 @@
         "out": true
     },
     "licenser.license": "MIT",
-    "licenser.author": "Sebastian Wiesner <swiesner@lunaryorn.com>",
+    "licenser.author": "Sebastian Wiesner <sebastian@swsnr.de>",
     "licenser.projectName": "vscode-hlint",
     "typescript.implementationsCodeLens.enabled": true,
     "typescript.referencesCodeLens.enabled": true
