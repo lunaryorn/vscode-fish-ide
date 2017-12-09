@@ -33,7 +33,8 @@
         "fish",
         "shell",
         "fish_indent",
-        "IDE"
+        "IDE",
+        "multi-root ready"
     ],
     "badges": [
         {
