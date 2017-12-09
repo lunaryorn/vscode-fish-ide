@@ -6,6 +6,8 @@ to structure this file.  This project does **not** adhere to [Semantic
 Versioning](http://semver.org/)!
 
 ## [Unreleased]
+
+## 0.3.1 – 2017-12-09
 ### Changed
 - Add "multi-root ready" keyword to metadata
 
