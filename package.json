@@ -59,12 +59,12 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/node": "^7.0.27",
+        "@types/node": "^9.6.6",
         "tslint": "^5.2.0",
         "tslint-immutable": "^4.0.1",
         "tslint-language-service": "^0.9.6",
         "typescript": "^2.4.1",
-        "typescript-formatter": "^6.0.0",
+        "typescript-formatter": "^7.2.0",
         "vscode": "^1.1.5"
     }
 }
