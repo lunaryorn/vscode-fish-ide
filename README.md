@@ -1,5 +1,7 @@
 # VSCode fish-ide
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/lunaryorn/vscode-fish-ide.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/lunaryorn/vscode-fish-ide.svg?branch=master)](https://travis-ci.org/lunaryorn/vscode-fish-ide)
 
 IDE features for [Fish][] scripts in [Visual Studio Code][code]:
