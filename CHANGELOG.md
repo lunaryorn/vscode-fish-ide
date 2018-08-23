@@ -6,6 +6,8 @@ to structure this file.  This project does **not** adhere to [Semantic
 Versioning](http://semver.org/)!
 
 ## [Unreleased]
+
+## 0.4.0 – 2018-08-23
 ### Fixed
 - Replace dependency on unpublished extension, see
   <https://github.com/lunaryorn/vscode-fish-ide/issues/4>.  We now use
