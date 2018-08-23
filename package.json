@@ -47,7 +47,7 @@
         "onLanguage:fish"
     ],
     "extensionDependencies": [
-        "TeddyDD.fish"
+        "skyapps.fish-vscode"
     ],
     "main": "./out/src/extension",
     "scripts": {
