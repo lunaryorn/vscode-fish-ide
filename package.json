@@ -36,6 +36,28 @@
         "IDE",
         "multi-root ready"
     ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "fish",
+                "aliases": [
+                    "fish",
+                    "fish"
+                ],
+                "extensions": [
+                    ".fish"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "fish",
+                "scopeName": "source.fish",
+                "path": "./syntaxes/fish.tmLanguage.json"
+            }
+        ]
+    },
     "badges": [
         {
             "url": "https://travis-ci.org/lunaryorn/vscode-fish-ide.svg?branch=master",
